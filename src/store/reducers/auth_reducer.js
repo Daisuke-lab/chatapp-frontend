@@ -3,32 +3,38 @@ import * as actionType from '../actions/actionType'
 const initialState = {
     access: localStorage.getItem('access'),
     refresh: localStorage.getItem('refresh'),
-    isAuthenticated: null,
+    isAuthenticated: false,
     name: localStorage.getItem('name'),
-    id: localStorage.getItem('id')
+    id: localStorage.getItem('id'),
+    error: '',
+    activation: ''
 }
 
 function auth_reducer(state = initialState, action)  {
-    const {type, payload } = action
+    const {type, payload} = action
+
 
     switch(type) {
         case actionType.LOGIN_SUCCESS:
             localStorage.setItem('access', payload.access)
+            localStorage.setItem('refresh', payload.refresh)
             return {
                 ...state,
                 isAuthenticated: true,
                 access: payload.access,
                 refresh: payload.refresh,
+                id: payload.id
             }
 
         
         case actionType.LOGIN_FAIL:
         case actionType.SIGNUP_FAIL:
         case actionType.LOG_OUT:
-            if (localStorage.getItem('access')) {
+            localStorage.removeItem('name')
             localStorage.removeItem('access')
             localStorage.removeItem('refresh')
-            }
+            localStorage.removeItem('id')
+        
             return {
                 ...state,
                 access: null,
@@ -40,7 +46,8 @@ function auth_reducer(state = initialState, action)  {
         
             
         case actionType.LOAD_USER_SUCCESS:
-
+            localStorage.setItem('id', payload.id)
+            localStorage.setItem('name', payload.name)
             return {
                 ...state,
                 name: payload.name,
@@ -73,8 +80,9 @@ function auth_reducer(state = initialState, action)  {
         case actionType.SIGNUP_SUCCESS:
             return {
                 ...state,
-                isAuthenticated: false,
-                id: payload.id
+                isAuthenticated: true,
+                id: payload.id,
+                activation: "Your account's been created successfully! Check your email and activate your account."
 
             }
         case actionType.PASSWORD_RESET_SUCCESS:
@@ -86,7 +94,24 @@ function auth_reducer(state = initialState, action)  {
             return {
                 ...state,
             }
-        
+        case actionType.ERROR:
+            console.log('error', payload)
+            return {
+                ...state,
+                error: payload
+            }
+
+        case actionType.REMOVE_ERROR:
+            return {
+                ...state,
+                error: ''
+            }
+
+        case actionType.BACK_TO_HOME:
+            return {
+                ...state,
+                isAuthenticated: null
+            }
         default:
             return state
     }

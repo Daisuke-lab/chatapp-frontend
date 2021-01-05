@@ -12,17 +12,20 @@ export const load_user = () => async dispatch => {
         try {
             // use shift and @ instead of shift and 7
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/auth/users/me/`, config)
+            console.log('data in load::', res.data)
             dispatch({
                 type: actionType.LOAD_USER_SUCCESS,
                 payload: res.data})
         } catch (err) {
-        dispatch({
-                type: actionType.LOAD_USER_FAIL})
-        }
+            dispatch({
+                    type: actionType.LOAD_USER_FAIL,
+                    payload: "An error occured. Please try again."})
+            }
     } else {
         console.log('no access')
         dispatch({
-            type: actionType.LOAD_USER_FAIL})
+            type: actionType.LOAD_USER_FAIL,
+            payload: "An error occured. Please try again"})
     }
 }
 export const login = (email, password) => async dispatch => {
@@ -43,8 +46,13 @@ export const login = (email, password) => async dispatch => {
 
         dispatch(load_user())
     } catch (err) {
+        console.log(err.response)
         dispatch({
-            type: actionType.LOGIN_FAIL})
+            type: actionType.LOGIN_FAIL,
+            payload: "Email or password is invalid."})
+        dispatch({
+            type: actionType.ERROR,
+            payload: "Email or password is invalid."})
     }
 }
 
@@ -66,20 +74,30 @@ export const checkAuthenticated = () => async dispatch => {
                 })
             } else {
                 dispatch({
-                    type: actionType.AUTEHNTICATED_FAIL
-            })
+                    type: actionType.AUTEHNTICATED_FAIL})
+                dispatch({
+                    type: actionType.ERROR,
+                    payload:'Token is not valid' })
         }
             
         } catch(err) {
             dispatch({
-                type: actionType.AUTEHNTICATED_FAIL
+                type: actionType.AUTEHNTICATED_FAIL,
             })
+            dispatch({
+                type: actionType.ERROR,
+                payload: err.response.request.response})
+            
         }
         
     } else {
         dispatch({
-            type: actionType.AUTEHNTICATED_FAIL
+            type: actionType.AUTEHNTICATED_FAIL,
+            payload: 'An error occured. Please try again'
         })
+        dispatch({
+            type: actionType.ERROR,
+            payload: 'An error occured. Please try again'})
     }
 }
 
@@ -100,14 +118,17 @@ export const reset_password = (email) => async dispatch => {
 
     try {
         const res = await axios.post(`${process.env.REACT_APP_API_URL}/auth/users/reset_password/`, body, config)
-        console.log('PASSWORD_RESET')
         dispatch({
             type: actionType.PASSWORD_RESET_SUCCESS,
             payload: res.data})
 
     } catch (err) {
         dispatch({
-            type: actionType.PASSWORD_RESET_FAIL})
+            type: actionType.PASSWORD_RESET_FAIL,
+            payload: err.response.request.response})
+        dispatch({
+            type: actionType.ERROR,
+            payload: err.response.request.response})
     }
 }
 
@@ -126,7 +147,12 @@ export const reset_password_confirm = (uid, token, new_password, re_new_password
             type: actionType.PASSWORD_RESET_CONFIRM_SUCCESS})
     } catch (err) {
         dispatch({
-            type: actionType.PASSWORD_RESET_CONFIRM_FAIL})
+            type: actionType.PASSWORD_RESET_CONFIRM_FAIL,
+            payload: err.response.request.response})
+
+        dispatch({
+            type: actionType.ERROR,
+            payload: err.response.request.response})
     }
 }
 
@@ -141,17 +167,20 @@ export const signup = (name, email, password, re_password) => async dispatch => 
 
     try {
         const res = await axios.post(`${process.env.REACT_APP_API_URL}/auth/users/`, body, config)
-        console.log('res in signup::', res.data)
         //{name: "lol", email: "jeorgia.zr@gmail.com", id: 2}
         dispatch({
             type: actionType.SIGNUP_SUCCESS,
             payload: res.data})
-            localStorage.setItem('name', name)
         
 
     } catch (err) {
+        console.log(err)
         dispatch({
-            type: actionType.SIGNUP_FAIL})
+            type: actionType.ERROR,
+            payload: err.response.request.response})
+        dispatch({
+            type: actionType.SIGNUP_FAIL,
+            payload: err.response.request.response})
     }
 
 }
@@ -167,26 +196,30 @@ export const verify = (uid, token) => async dispatch => {
 
     try {
         const res = await axios.post(`${process.env.REACT_APP_API_URL}/auth/users/activation/`, body, config)
-        console.log(res.data)
         dispatch({
             type: actionType.ACTIVATION_SUCCESS,
             payload: res.data})
 
     } catch (err) {
         dispatch({
-            type: actionType.ACTIVATION_FAIL})
+            type: actionType.ACTIVATION_FAIL,
+            payload: err.response.request.response})
+
+        dispatch({
+            type: actionType.ERROR,
+            payload: err.response.request.response})
+        
     }
 }
 
+export const remove_error = () => dispatch => {
+    dispatch({
+        type: actionType.REMOVE_ERROR
+    })
+}
 
-
-
-// try {
-//     const res = await axios.get(`${process.env.REACT_APP_API_URL}/account/detail/${email}/`)
-//     console.log(res.data)
-//     localStorage.setItem('id', res.data.id)
-// } catch (err) {
-//     dispatch({
-//         type:actionType.SIGNUP_FAIL
-//     })
-// }
+export const back_to_home = () => dispatch => {
+    dispatch({
+        type: actionType.BACK_TO_HOME
+    })
+}

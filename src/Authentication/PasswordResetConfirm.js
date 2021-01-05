@@ -1,8 +1,10 @@
 import React, { useState }from 'react'
-import { Redirect } from 'react-router-dom'
+import {Link, Redirect } from 'react-router-dom'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import { IconButton } from '@material-ui/core';
 import {connect} from 'react-redux'
 import * as auth_actions from '../store/actions/auth_action'
-import Navbar from './Navbar.js'
+import '../assets/Authentication/PasswordResetConfirm.css'
 const PasswordResetConfirm = (props) => {
     const [requestSent, setRequestSent] = useState(false)
     const [formData, setFormData] = useState({
@@ -23,13 +25,20 @@ const PasswordResetConfirm = (props) => {
         return <Redirect to='/'/>
     }
     return (
-    <div className='eontainer mt-5'>
-        <Navbar/>
+    <div className='password_reset_confirm'>
+        <header className='passowrd_reset_confirm_header'>
+            <Link to='/login'>
+            <IconButton id='password_reset_confirm_back'>
+                <ArrowBackIosIcon style={{fontSize: '30px'}}/>
+            </IconButton>
+            </Link>
+        </header>
+        <div className='password_reset_confirm_content'>
         <h1>Request Password Reset</h1>
         <form onSubmit={e => onSubmit(e)}>
             <div className='form-group'>
                 <input 
-                className='from-control'
+                className='password_reset_confirm_input'
                 type='password'
                 placeholder='New Pasword'
                 name='new_password'
@@ -39,7 +48,7 @@ const PasswordResetConfirm = (props) => {
             </div>
             <div className='form-group'>
                 <input 
-                className='from-control'
+                className='password_reset_confirm_input'
                 type='password'
                 placeholder='Confirm New Password'
                 name='re_new_password'
@@ -47,14 +56,13 @@ const PasswordResetConfirm = (props) => {
                 onChange={e => onChange(e)}
                 required/>
             </div>
-            <button className='btn btn-primary' type='submit'>PasswordResetConfirm</button>
+            <button className='password_reset_confirm_button' type='submit'>Confirm Password Reset </button>
         </form>
+        </div>
     </div>
     )
 }
 
-// if resetpasswordconfirm send token and uid to this component, but you can't put two variables on PasswordResetConfirm.
-// so you need to use mapStateProps to use them
 const mapstateToProps = (state, objects) => {
     return {
         uid: objects.match.params.uid,

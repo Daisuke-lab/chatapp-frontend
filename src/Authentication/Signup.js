@@ -1,15 +1,19 @@
-import React, { useState }from 'react'
+import React, { useState, useEffect}from 'react'
 import {Link, Redirect } from 'react-router-dom'
 import {connect} from 'react-redux'
 import * as auth_actions from '../store/actions/auth_action'
-import * as profile_action from '../store/actions/profile_action'
+import * as profile_actions from '../store/actions/profile_action'
+import * as swipe_actions from '../store/actions/swipe_action'
+import * as contact_actions from '../store/actions/contact_action'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import SpaIcon from '@material-ui/icons/Spa';
 import { IconButton } from '@material-ui/core';
-import '../assets/Signup.css'
+import '../assets/Authentication/Signup.css'
+import Default from '@bit/joshk.react-spinners-css.default';
 
 const Signup = (props) => {
     const [accountCreated, setAccountCreated] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         name: '',
         email:'',
@@ -18,27 +22,53 @@ const Signup = (props) => {
         native_lan: '',
         foreign_lan: ''
     })
+    useEffect(() => {
+        props.remove_error()
+    }, [])
 
     const {name, email, password, re_password, native_lan, foreign_lan} = formData
     const onChange = e => setFormData({...formData, [e.target.name]: e.target.value})
     const onSubmit = e => {
         e.preventDefault()
+        setLoading(true)
         props.signup(name, email, password, re_password)
-        //props.profile_create(name, native_lan, foreign_lan)
+        props.remove_error()
         setAccountCreated(true)
     }
-    if (props.id) {
+
+    const loading_handler = () => {
+        console.log('loading_handler')
+        if (props.error !== '' ) {
+            setLoading(false)
+        }
+    }
+
+    let count = 0
+
+    if (props.id && props.isAuthenticated) {
+        count = 1
         props.profile_create(props.id, name, native_lan, foreign_lan)
-    } 
+        props.swipe_create(props.id)
+        props.contact_create(props.id)
+    }
+
+    if (props.error !== '' && loading===true) {
+        setLoading(false)
+    }
+    
+    
+
+
+     
 
     const languages = ['Arabic','Bengali','Burmese','Chinese','English','French','German','Gujarati','Hindi','Italian','Japanese','Kannada','Korean','Malayalam',
 'Marathi','Oriya','Panjabi','Persian','Polish','Portuguese','Russian','Spanish','Tamil','Telugu','Thai','Turkish','Ukrainian','Urdu','Vietnamese']
-    if (props.isAuthenticated) {
+    if (props.isAuthenticated && props.id !== null) {
         return <Redirect to='/'/>
     }
-    if (accountCreated) {
-        return <Redirect to='/'/>
-    }
+    // if (props.id) {
+    //     return <Redirect to='/'/>
+    // }
     return (
     <div className='signup'>
         <header className='signup_header'>
@@ -64,19 +94,19 @@ const Signup = (props) => {
                 <div className='col signup_form2'>
                 <div className='signup_lan'>
                     What language are you fluent in?
-                <select className='signup_select' name='native_lan' required>
+                <select className='signup_select' name='native_lan' required onChange={e => onChange(e)}>
                     <option hidden>You speak ...</option>
                     {languages.map((language) => {
-                        return <option>{language}</option>
+                        return <option value={language}>{language}</option>
                     })}
                 </select>
                 </div>
                 <div className='signup_lan'>
                     What do you want to learn?
-                <select className='signup_select' name='foreign_lan' required>
+                <select className='signup_select' name='foreign_lan' required onChange={e => onChange(e)}>
                     <option hidden>You want to learn ...</option>
                     {languages.map((language) => {
-                        return <option>{language}</option>
+                        return <option value={language}>{language}</option>
                     })}
                 </select>
                 </div>
@@ -89,24 +119,36 @@ const Signup = (props) => {
         <p style={{textAlign: 'center'}}>
             Already have an account? <Link to='/login'>Log in</Link>
         </p>
+        <p style={{color: "red", textAlign: 'center'}}>{props.error}</p>
+        <div style={{textAlign: 'center'}}>
+            {loading?
+            <Default color="palevioletred"/>
+            :<></>
+                }
+        </div>
     </div>
     )
 }
 
+
 const mapstateToProps = state => ({
     isAuthenticated: state.auth_reducer.isAuthenticated,
-    id: state.auth_reducer.id
+    id: state.auth_reducer.id,
+    profile_id : state.profile_reducer.profile_id,
+    contact_id: state.contact_reducer.contact_id,
+    swipe_id: state.swipe_reducer.swipe_id,
+    error: state.auth_reducer.error
 })
 
 const mapDispatchToProps = dispatch => {
     return {
         signup : (name, email, password, re_password) => dispatch(auth_actions.signup(name, email, password, re_password)),
-        profile_create: (account_id, name, native_lan, foreign_lan) => dispatch(profile_action.Receive(account_id, name, native_lan, foreign_lan))
+        profile_create: (user, swipe, name, native_lan, foreign_lan) => dispatch(profile_actions.Create(user, swipe, name, native_lan, foreign_lan)),
+        swipe_create: (profile) => dispatch(swipe_actions.Create(profile)),
+        contact_create: (user) => dispatch(contact_actions.Create(user)),
+        remove_error: () => dispatch(auth_actions.remove_error())
 
     }
 }
 
 export default connect(mapstateToProps, mapDispatchToProps)(Signup)
-
-
-

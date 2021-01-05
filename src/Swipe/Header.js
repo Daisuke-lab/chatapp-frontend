@@ -1,5 +1,5 @@
 import React from 'react'
-import '../assets/Header.css'
+import '../assets/Swipe/Header.css'
 import PersonIcon from '@material-ui/icons/Person';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import SpaIcon from '@material-ui/icons/Spa';
@@ -12,7 +12,6 @@ import {Link, useHistory} from 'react-router-dom'
 // the second one is backButton is '/' and you can get ArrowbackIosIcon. if you click the icon. you can back to '/' which is backButton
 function Header({backButton}) {
   const history = useHistory()
-  console.log(history)
   return (
     <div className="header">
     <Link to='/setting'>
@@ -27,7 +26,7 @@ function Header({backButton}) {
       </IconButton>
     </Link>
 
-    <Link to='/chat'>
+    <Link to='/chatpanel'>
       <IconButton id='header_icon'>
       <QuestionAnswerIcon fontSize='large'/>
       </IconButton>

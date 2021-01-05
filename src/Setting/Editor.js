@@ -1,46 +1,25 @@
-import React, { useEffect, useState }from 'react'
+import React, { useState }from 'react'
 import {Link, Redirect } from 'react-router-dom'
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import { IconButton } from '@material-ui/core';
-import Profile from './Profile'
-import '../assets/Editor.css'
-import AutorenewIcon from '@material-ui/icons/Autorenew';
-import ImageIcon from '@material-ui/icons/Image';
+import ImagesBox from './ImagesBox'
 import * as profile_actions from '../store/actions/profile_action';
-import { makeStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
-import Card from '@material-ui/core/Card';
-import CardMedia from '@material-ui/core/CardMedia';
-import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
-import Collapse from '@material-ui/core/Collapse';
-import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import '../assets/SettingProfile.css'
 import { connect } from 'react-redux'
-import default_image from '../assets/default_image.jpg'
+import '../assets/Setting/Editor.css'
 
-const useStyles = makeStyles((theme) => ({
-    expand: {
-      transform: 'rotate(0deg)',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      outline: 'none',
-      transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-      }),
-    },
-    expandOpen: {
-      transform: 'rotate(180deg)',
-    },
-  }));
+// const images = ['https://aisaregirl.com/wp-content/uploads/2019/10/aragaki.jpg',
+// 'https://imgc.eximg.jp/i=%252F%252Fs.eximg.jp%252Fexnews%252Ffeed%252FMore%252FMore_51190_fae2_7.jpg,small=600,quality=100,type=webp',
+// 'https://i.pinimg.com/originals/15/78/0f/15780f012e13dde7645d6ba4140d8130.jpg',
+// 'https://www.crank-in.net/img/db/1402211_650.jpg',
+// 'https://cdnx.natalie.mu/media/pp/static/eiga/fortuna-movie/photo02.jpg',
+// 'https://pbs.twimg.com/media/DqGFJC4V4AAFzfy.jpg']
 
-
-const Editor = (props) => {
+function Editor(props) {
+    console.log(props.images)
     const [profileUpdated, setProfileUpdated] = useState(false)
     const [formData, setFormData] = useState({
+        profile_id: props.profile_id,
         name: props.name,
-        account_id: props.account_id,
         gender: props.gender,
         age: props.age,
         native_lan: props.native_lan,
@@ -52,23 +31,16 @@ const Editor = (props) => {
         freeday: props.freeday 
     })
 
-    const [formImage, setFormImage] = useState(props.image)
 
     const languages = ['Arabic','Bengali','Burmese','Chinese','English','French','German','Gujarati','Hindi','Italian','Japanese','Kannada','Korean','Malayalam',
     'Marathi','Oriya','Panjabi','Persian','Polish','Portuguese','Russian','Spanish','Tamil','Telugu','Thai','Turkish','Ukrainian','Urdu','Vietnamese']
 
-    const days = ['Monday', 'Thuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
     const genders = ['Male', 'Female', 'Other']
 
-
-
-    const classes = useStyles();
-    const [expanded, setExpanded] = React.useState(false);
-
-    const handleExpandClick = () => {
-        setExpanded(!expanded);
-    };
+    const {profile_id, name, age, gender, native_lan, foreign_lan, location, time_start, time_end, intro, freeday} = formData
+    const onChange = e => setFormData({...formData, [e.target.name]: e.target.value})
 
     function time() {
         var time_range = null
@@ -77,87 +49,50 @@ const Editor = (props) => {
         :  time_range = (<></>)
         return time_range
     }
-    
-    function Imagehandler(e) {
-        console.log(e.target.files[0])
-        // .name => nashi
-        var image_file = e.target.files[0]
-        setFormImage(image_file)
-    
-    }
 
-    const {name, account_id, age, gender, native_lan, foreign_lan, location, time_start, time_end, intro, freeday} = formData
-    const onChange = e => setFormData({...formData, [e.target.name]: e.target.value})
+    function Freedayset() {
+        console.log(freeday)
+        var freetime = null
+        freeday !== '' ?
+        freetime = <>freeday: {freeday}</>
+        :
+        freetime = null
+        return freetime
+      }
+
     const onSubmit = e =>{
-        e.preventDefault()
-        props.update(name, account_id, age, gender, native_lan, foreign_lan, formImage, location, time_start, time_end, intro, freeday)
-        setProfileUpdated(true)
+    e.preventDefault()
+    props.update(profile_id, name, age, gender, native_lan, foreign_lan,  location, time_start, time_end, intro, freeday)
+    setProfileUpdated(true)
     }
     if (profileUpdated) {
         return <Redirect to='/setting'/>
     }
 
+
     return (
         <div className='edit'>
-            <div className='edit_header'>
+        <div className='edit_header'>
                 <Link to='/setting'>
-                    <IconButton style={{outline:'none'}}>
-                        <ArrowForwardIosIcon />
+                    <IconButton style={{outline: 'none'}}>
+                        <ArrowForwardIosIcon/>
                     </IconButton>
                 </Link>
-            </div>
-
-            <div className='edit_content'>
-            <Card id='root'>
-                <CardMedia
-                    className='media'
-                    image={formImage}
-                    title="Nana Mori"
-                />
-                <CardContent>
-                    <Typography variant="body2" color="textSecondary" component="p">
-                    {name}
-                    </Typography>
-                </CardContent>
-                <CardActions disableSpacing>
-                    <IconButton
-                    className={clsx(classes.expand, {
-                        [classes.expandOpen]: expanded,
-                    })}
-                    onClick={handleExpandClick}
-                    aria-expanded={expanded}
-                    aria-label="show more"
-                    >
-                    <ExpandMoreIcon />
-                    </IconButton>
-                </CardActions>
-                <Collapse in={expanded} timeout="auto" unmountOnExit>
-                    <CardContent>
-                <Typography>My native language: {native_lan}<br/>
-                I want to learn: {foreign_lan}<br/><br/></Typography>
-                    <Typography paragraph>free time: {freeday}<br/>{time()}</Typography>
-                    <Typography paragraph id='profile_intro'>
-                        {intro}
-                    </Typography>
-                    </CardContent>
-                </Collapse>
-            </Card>
-
-
-
-                <div className='edit_setting'>
+        </div>
+        <div className='edit_setting'>
                     <form className='edit_form' onSubmit={onSubmit} encType='multipart/form-data'>
-                    <div className='edit_container'>
-                        <h1>Setting</h1>
-                            <input placeholder='name' type='text' name='name' value={name} className='edit_input' onChange={onChange}/>
-                            <input placeholder='age' type="number" name='age' value={age} className='edit_input' onChange={onChange}/>
+                    <div className='edit_container'> 
+                    <h1>Your Profile</h1>
+                    <ImagesBox images={props.images}/>
+                            <input placeholder='name' type='text' name='name' value={name} className='edit_input' id='edit_name' onChange={onChange}/>
+                            <input placeholder='age' type="number" name='age' value={parseInt(age)} className='edit_input' onChange={onChange}/>
                             <select className='edit_select' name='gender' onChange={onChange}>
                                 <option hidden>gender</option>
                                 {genders.map((sex) => {
                                     if (sex===gender) {
-                                        return <option selected>{sex}</option>
+                                        return <option selected value={sex}>{sex}</option>
                                     } else {
-                                    return <option>{sex}</option>
+                                    return <option value={sex}>{sex}</option>
                                     }
                                 })}
                             </select>
@@ -165,9 +100,9 @@ const Editor = (props) => {
                                 <option hidden>You speak...</option>
                                 {languages.map((language) => {
                                     if (language===native_lan) {
-                                        return <option selected>{language}</option>
+                                        return <option selected value={language}>{language}</option>
                                     } else {
-                                    return <option>{language}</option>
+                                    return <option value={language}>{language}</option>
                                     }
                                 })}
                             </select>
@@ -175,9 +110,9 @@ const Editor = (props) => {
                                 <option hidden>You want to learn ...</option>
                                 {languages.map((language) => {
                                     if (language===foreign_lan) {
-                                        return <option selected>{language}</option>
+                                        return <option selected value={language}>{language}</option>
                                     } else {
-                                    return <option>{language}</option>
+                                    return <option value={language}>{language}</option>
                                     }
                                 })}
                             </select>
@@ -186,9 +121,9 @@ const Editor = (props) => {
                                 <option hidden>You are free on ...</option>
                                 {days.map((day) => {
                                     if (day===freeday) {
-                                        return <option selected>{day}</option>
+                                        return <option selected value={day}>{day}</option>
                                     } else {
-                                    return <option>{day}</option>
+                                    return <option value={day}>{day}</option>
                                     }
                                 })}
                             </select>
@@ -197,37 +132,31 @@ const Editor = (props) => {
                             ~
                             <input type='time' className='edit_input_time' name='time_end' value={time_end} onChange={onChange}/>
                             </div>
-                            <label className='edit_input_file'>
-                                {formImage!==`${default_image}` ? <p1><AutorenewIcon className='edit_icon'/>{formImage.name}</p1>  
-                                : <p1><ImageIcon className='edit_icon'/>choose your image</p1>}
-                            <input placeholder='image' type='file' name='image' className='edit_input' accept="image/png, image/jpeg"　onChange={Imagehandler}/>
-                            </label>
                             <textarea placeholder='Write your profile message here!' name='intro' value={intro} type='text' className='edit_input' onChange={onChange}/>
                             </div>
                             <button className='edit_button' type='submit'><span>SAVE</span></button>
-                        </form> 
-                </div>
-            </div>
-       </div>
-    )
+                        </form>
+        </div>
+        </div>
+    );
 }
 
 
 const mapstateToProps = state => {
     return {
-      name: state.profile_reducer.name,
-      account_id: state.profile_reducer.account_id,
-      gender: state.profile_reducer.gender,
-      age: state.profile_reducer.age,
-      native_lan: state.profile_reducer.native_lan,
-      foreign_lan: state.profile_reducer.foreign_lan,
-      image: state.profile_reducer.image,
-      location: state.profile_reducer.location,
-      time_start: state.profile_reducer.time_start,
-      time_end: state.profile_reducer.time_end,
-      intro: state.profile_reducer.intro,
-      freeday: state.profile_reducer.freeday
-  
+        profile_id: state.profile_reducer.profile_id,
+        name: state.profile_reducer.name,
+        gender: state.profile_reducer.gender,
+        age: state.profile_reducer.age,
+        native_lan: state.profile_reducer.native_lan,
+        foreign_lan: state.profile_reducer.foreign_lan,
+        images: state.image_reducer.images,
+        location: state.profile_reducer.location,
+        time_start: state.profile_reducer.time_start,
+        time_end: state.profile_reducer.time_end,
+        intro: state.profile_reducer.intro,
+        freeday: state.profile_reducer.freeday
+    
     }
   }
   
@@ -239,19 +168,4 @@ const mapDispatchToProps = dispatch => {
         dispatch(profile_actions.Update(name, account_id, age, gender, native_lan, foreign_lan, image, location, time_start, time_end, intro, freeday))
     }
 }
-
-export default connect(mapstateToProps, mapDispatchToProps)(Editor)
-
-
-
-// const language_option = () => {
-//     languages.map((language) => {
-//         console.log(language)
-//         if (language===native_lan) {
-//             return <option value={language} selected>{language}</option>
-//         } else {                                                                    I don't know why but it didn'T work
-//             return <option value={language}>{language}</option>
-//         }
-//     })
-// }
-
+export default connect(mapstateToProps, mapDispatchToProps)(Editor);

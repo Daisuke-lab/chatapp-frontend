@@ -1,31 +1,45 @@
 import * as actionType from './actionType'
 import axios from 'axios'
 
-export const Create = (account_id, name, native_lan, foreign_lan) => async dispatch => {
-    const config = {
-        headers: {
-        'Content-Type': 'application/json'
+export const Create = (user, name, native_lan, foreign_lan) => async dispatch => {
+    if (user != null) {
+        const config = {
+            headers: {
+            'Content-Type': 'application/json'
+            }
         }
-    }
-    const body = JSON.stringify({account_id, name, native_lan, foreign_lan})
-    try {
-        const res = await axios.post(`${process.env.REACT_APP_API_URL}/myprofile/create/`, body, config)
-        dispatch({
-            type: actionType.PROFILE_CREATE_SUCCESS,
-            payload: res.data
-        })
-    } catch(err) {
+        const body = JSON.stringify({user, name, native_lan, foreign_lan})
+        try {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/profile/create/`, body, config)
+            dispatch({
+                type: actionType.PROFILE_CREATE_SUCCESS,
+                payload: res.data
+            })
+        } catch(err) {
+            dispatch({
+                type: actionType.PROFILE_CREATE_FAIL,
+                paylaod: err.response.request.response
+            })
+            dispatch({
+            type: actionType.ERROR,
+            payload: err.response.request.response})
+        }
+    } else {
         dispatch({
             type: actionType.PROFILE_CREATE_FAIL
         })
+        dispatch({
+            type: actionType.ERROR,
+            payload: "An error occured. Please try again"})
     }
 }
 
 
-export const Receive = (account_id) => async dispatch => {
-    console.log(`${process.env.REACT_APP_API_URL}/myprofile/receive/${account_id}/`)
+export const Receive = (id) => async dispatch => {
+    console.log('PROFILE')
     try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/myprofile/detail/${account_id}/`)
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/profile/detail/${id}/`)
+        console.log('profile::', res.data)
         dispatch ({
             type: actionType.PROFILE_RECEIVE_SUCCESS,
             payload: res.data
@@ -33,60 +47,56 @@ export const Receive = (account_id) => async dispatch => {
     } catch(err) {
         dispatch({
             type:actionType.PROFILE_RECEIVE_FAIL,
+            payload: err.response
         })
+        dispatch({
+            type: actionType.ERROR,
+            payload: err.response})
     }
 }
 
-export const Update = (name, account_id, age, gender, native_lan, foreign_lan, image, location, time_start, time_end, intro, freeday) => async dispatch => {
-    console.log(JSON.stringify({name, account_id, age, gender, native_lan, foreign_lan, image, location, time_start, time_end, intro, freeday}))
+export const Update = (id, name, age, gender, native_lan, foreign_lan, location, time_start, time_end, intro, freeday) => async dispatch => {
+    console.log('time:',typeof  time_start)
     try {
         const config = {
-            headers: {'Content-Type': 'multipart/form-data',
-            //multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-            //multipart/form-data
-            //'Accept': 'application/json'
+            headers: {'Content-Type': 'application/json',
         }}
-        const body = JSON.stringify({name, account_id, age, gender, native_lan, foreign_lan, image, location, time_start, time_end, intro, freeday})
-        const formData = new FormData();
-        formData.append("name", name)
-        formData.append("account_id", account_id)
-        formData.append("age", age)
-        formData.append("gender", gender)
-        formData.append("native_lan", native_lan)
-        formData.append("foreign_lan", foreign_lan)
-        formData.append("image", image)
-        formData.append("location", location)
-        formData.append("time_start", time_start)
-        formData.append("time_end", time_end)
-        formData.append("intro", intro)
-        formData.append("freeday", freeday)
 
+        const body = JSON.stringify({name, age, gender, native_lan, foreign_lan, location, time_start,
+             time_end, intro, freeday})
+        
 
-        const res = await axios.put(`${process.env.REACT_APP_API_URL}/myprofile/update/${account_id}/`, formData, config)
+        const res = await axios.put(`${process.env.REACT_APP_API_URL}/profile/update/${id}/`, body, config)
         dispatch({
             type: actionType.PROFILE_UPDATE_SUCCESS,
             payload: res.data
         })
     } catch(err) {
-        console.log(err.response.request.response)
-        console.log(err)
         dispatch({
             type: actionType.PROFILE_UPDATE_FAIL,
-
+            payload: err.response.request.response
         })
+        dispatch({
+            type: actionType.ERROR,
+            payload: err.response.request.response})
     }
 }
 
-export const Delete = (account_id) => async dispatch => {
+export const Delete = (id) => async dispatch => {
     try {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/myprofile/delete/${account_id}/`)
+        await axios.delete(`${process.env.REACT_APP_API_URL}/profile/delete/${id}/`)
         dispatch({
             type: actionType.PROFILE_DELETE_SUCCESS,
         })
     } catch(err) {
         dispatch({
-            type: actionType.PROFILE_DELETE_FAIL
+            type: actionType.PROFILE_DELETE_FAIL,
+            payload: err.response.request.response
         })
+        dispatch({
+            type: actionType.ERROR,
+            payload: err.response.request.response})
     }
 }
+
 

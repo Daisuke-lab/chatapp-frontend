@@ -6,6 +6,7 @@ import * as auth_actions from '../store/actions/auth_action'
 const Activate = (props) => {
     const [verified, setVerified] = useState(false)
     const verify_account = e => {
+        console.log(props.uid, props.token)
         props.verify(props.uid, props.token)
         setVerified(true)
     }

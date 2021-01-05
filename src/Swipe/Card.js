@@ -9,9 +9,7 @@ import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import '../assets/Card.css'
-import { connect } from 'react-redux'
+import '../assets/Swipe/Card.css'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -28,25 +26,35 @@ const useStyles = makeStyles((theme) => ({
       transform: 'rotate(180deg)',
     },
   }));
+
+
   
 
 function OneCard(props) {
-  console.log(props.data)
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
+    console.log('Expand!!')
     setExpanded(!expanded);
   };
 
   function time() {
     var time_range = null
-    props.time_start !== null || props.time_end !== null ?
-    time_range = <>{props.time_start}~{props.time_end}</>
+    props.data.time_start != null || props.data.time_end != null ?
+    time_range = <>{props.data.time_start}~{props.data.time_end}</>
     :  time_range = (<></>)
     return time_range
 }
 
+  function freeday() {
+    var freeday = null
+    props.data.freeday != null ?
+    freeday = <>freeday: {props.data.freeday}</>
+    :
+    freeday = null
+    return freeday
+  }
 
   return (
     <Card id='card_root'>
@@ -60,6 +68,9 @@ function OneCard(props) {
           {props.data.name}
         </Typography>
       </CardContent>
+      <Typography style={{marginLeft: '10px'}}>native language: {props.data.native_lan}<br/>
+                 want to learn: {props.data.foreign_lan}<br/><br/>
+      </Typography>
       <CardActions disableSpacing>
         <IconButton
           className={clsx(classes.expand, {
@@ -69,12 +80,12 @@ function OneCard(props) {
           aria-expanded={expanded}
           aria-label="show more"
         >
-          <ExpandMoreIcon />
+          <ExpandMoreIcon onClick={handleExpandClick}/>
         </IconButton>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-        <Typography paragraph>freeday: {props.freeday}  {time()}</Typography>
+        <Typography paragraph>{freeday()}  {time()}</Typography>
           <Typography paragraph>
             {props.intro}
           </Typography>
@@ -84,22 +95,5 @@ function OneCard(props) {
   );
 }
 
-// const mapstateToProps = state => {
-//   return {
-//     name: state.profile_reducer.name,
-//     gender: state.profile_reducer.gender,
-//     age: state.profile_reducer.age,
-//     native_lan: state.profile_reducer.native_lan,
-//     foreign_lan: state.profile_reducer.foreign_lan,
-//     image: state.profile_reducer.image,
-//     location: state.profile_reducer.location,
-//     time_start: state.profile_reducer.time_start,
-//     time_end: state.profile_reducer.time_end,
-//     intro: state.profile_reducer.intro,
-//     freeday: state.profile_reducer.freeday
 
-//   }
-// }
-
-// export default connect(mapstateToProps, null)(OneCard)
 export default OneCard
